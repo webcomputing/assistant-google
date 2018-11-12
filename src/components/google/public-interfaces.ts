@@ -18,7 +18,7 @@ export interface GoogleConfigurationAttribute {
 }
 
 /** Possible devices this extractor can return */
-export type Device = "phone" | "speaker";
+export type GoogleDevice = "googlePhone" | "googleSpeaker" | "unknown";
 
 export interface Extraction
   extends ApiAiExtraction,

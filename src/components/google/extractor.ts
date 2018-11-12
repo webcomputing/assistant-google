@@ -2,10 +2,8 @@ import { Extractor as ApiAiExtractor } from "assistant-apiai";
 import { ComponentSpecificLoggerFactory, injectionNames, Logger, RequestContext, RequestExtractor } from "assistant-source";
 import { inject, injectable, optional } from "inversify";
 import { Component } from "inversify-components";
-
-import { AppRequest, RawInput } from "./conversation-interface";
 import { COMPONENT_NAME } from "./private-interfaces";
-import { Device, Extraction, GoogleRequestContext } from "./public-interfaces";
+import { Extraction, GoogleDevice, GoogleRequestContext } from "./public-interfaces";
 
 @injectable()
 export class Extractor extends ApiAiExtractor implements RequestExtractor {
@@ -55,16 +53,16 @@ export class Extractor extends ApiAiExtractor implements RequestExtractor {
     };
   }
 
-  protected getDevice(context: GoogleRequestContext) {
+  protected getDevice(context: GoogleRequestContext): GoogleDevice {
     if (
       typeof context.body.originalDetectIntentRequest.payload !== "undefined" &&
       typeof context.body.originalDetectIntentRequest.payload.surface !== "undefined" &&
       typeof context.body.originalDetectIntentRequest.payload.surface.capabilities !== "undefined"
     ) {
       const capabilities = context.body.originalDetectIntentRequest.payload.surface.capabilities;
-      return capabilities.map(c => c.name).indexOf("actions.capability.SCREEN_OUTPUT") === -1 ? "speaker" : "phone";
+      return capabilities.map(c => c.name).indexOf("actions.capability.SCREEN_OUTPUT") === -1 ? "googleSpeaker" : "googlePhone";
     }
-    return "";
+    return "unknown";
   }
 
   protected getOAuthToken(context: GoogleRequestContext): string | null {
