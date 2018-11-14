@@ -53,7 +53,7 @@ export class Extractor extends ApiAiExtractor implements RequestExtractor {
     };
   }
 
-  protected getDevice(context: GoogleRequestContext): GoogleDevice {
+  protected getDevice(context: GoogleRequestContext): string {
     if (
       typeof context.body.originalDetectIntentRequest.payload !== "undefined" &&
       typeof context.body.originalDetectIntentRequest.payload.surface !== "undefined" &&
