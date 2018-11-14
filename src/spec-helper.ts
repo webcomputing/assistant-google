@@ -1,16 +1,35 @@
-import { HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
+import { HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper, VirtualDevices } from "assistant-source";
 import { GoogleHandler } from "./components/google/handler";
-import { Extraction, GoogleSpecificHandable, GoogleSpecificTypes } from "./components/google/public-interfaces";
+import { Extraction, GoogleDevice, GoogleSpecificHandable, GoogleSpecificTypes } from "./components/google/public-interfaces";
 
 export class GoogleSpecHelper implements PlatformSpecHelper<GoogleSpecificTypes, GoogleSpecificHandable<GoogleSpecificTypes>> {
-  constructor(public specSetup: SpecHelper) {}
+  public devices: VirtualDevices;
 
-  public async pretendIntentCalled(
-    intent: Intent,
-    autoStart = true,
-    additionalExtractions: Partial<Extraction> = {},
-    additionalContext = {}
-  ): Promise<GoogleSpecificHandable<GoogleSpecificTypes>> {
+  constructor(public specSetup: SpecHelper) {
+    this.devices = this.setupDevices();
+  }
+
+  public setupDevices(): VirtualDevices {
+    return {
+      googleSpeaker: {
+        additionalRequestContext: {
+          body: { originalDetectIntentRequest: { payload: { surface: { capabilities: [{ name: "actions.capability.AUDIO_OUTPUT" }] } } } },
+        },
+        additionalExtractions: { device: "googleSpeaker" },
+      },
+      googlePhone: {
+        additionalRequestContext: {
+          body: { originalDetectIntentRequest: { payload: { surface: { capabilities: [{ name: "actions.capability.SCREEN_OUTPUT" }] } } } },
+        },
+        additionalExtractions: { device: "googlePhone" },
+      },
+    };
+  }
+
+  public async pretendIntentCalled(intent: Intent, device?: GoogleDevice): Promise<GoogleSpecificHandable<GoogleSpecificTypes>> {
+    const additionalExtractions = device ? this.devices[device].additionalExtractions : {};
+    const additionalRequestContext = device ? this.devices[device].additionalRequestContext : {};
+
     const extraction: Extraction = {
       intent,
       platform: "google",
@@ -33,26 +52,23 @@ export class GoogleSpecHelper implements PlatformSpecHelper<GoogleSpecificTypes,
       headers: {},
       // tslint:disable-next-line:no-empty
       responseCallback: () => {},
-      ...additionalContext,
+      ...additionalRequestContext,
     };
 
     this.specSetup.createRequestScope(extraction, context);
 
     // Bind handler as singleton
-    this.specSetup.setup.container.inversifyInstance.unbind("google:current-response-handler");
-    this.specSetup.setup.container.inversifyInstance
+    this.specSetup.assistantJs.container.inversifyInstance.unbind("google:current-response-handler");
+    this.specSetup.assistantJs.container.inversifyInstance
       .bind("google:current-response-handler")
       .to(GoogleHandler)
       .inSingletonScope();
 
-    // auto run machine if wanted
-    if (autoStart) {
-      await this.specSetup.runMachine();
-    }
+    const proxyFactory = this.specSetup.assistantJs.container.inversifyInstance.get<HandlerProxyFactory>(injectionNames.handlerProxyFactory);
 
-    const proxyFactory = this.specSetup.setup.container.inversifyInstance.get<HandlerProxyFactory>(injectionNames.handlerProxyFactory);
-
-    const currentHandler = this.specSetup.setup.container.inversifyInstance.get<GoogleSpecificHandable<GoogleSpecificTypes>>("google:current-response-handler");
+    const currentHandler = this.specSetup.assistantJs.container.inversifyInstance.get<GoogleSpecificHandable<GoogleSpecificTypes>>(
+      "google:current-response-handler"
+    );
     const proxiedHandler = proxyFactory.createHandlerProxy(currentHandler);
 
     return proxiedHandler;
