@@ -5,7 +5,7 @@ import {
   DialogflowRequestContext,
   ExtractionInterface as ApiAiExtraction,
 } from "assistant-apiai";
-import { BasicAssistRequest, BasicAssistResponse, OptionalExtractions } from "assistant-source";
+import { E2ETesting, OptionalExtractions } from "assistant-source";
 import * as AssistantInterface from "./assistant-interface";
 import * as GoogleInterface from "./conversation-interface";
 import { Configuration } from "./private-interfaces";
@@ -107,7 +107,7 @@ export interface GoogleRequestContext extends DialogflowRequestContext {
  * The top-level message sent by AssistantJS to the Google Assistant API
  * https://developers.google.com/assistant/sdk/reference/rpc/google.assistant.embedded.v1alpha2#google.assistant.embedded.v1alpha2.AssistRequest
  */
-export interface GoogleAssistRequest extends BasicAssistRequest {
+export interface GoogleAssistRequest extends E2ETesting.BasicAssistRequest {
   /**
    * The config message provides information to the recognizer that specifies how to process the request.
    */
@@ -117,7 +117,7 @@ export interface GoogleAssistRequest extends BasicAssistRequest {
 /**
  * The top-level message received by the client. A series of one or more AssistResponse messages are streamed back to the client.
  */
-export interface GoogleAssistResponse extends BasicAssistResponse {
+export interface GoogleAssistResponse extends E2ETesting.BasicAssistResponse {
   text: string;
   dialog_state_out: AssistantInterface.DialogStateOut;
 }

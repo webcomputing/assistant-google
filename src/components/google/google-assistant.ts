@@ -55,10 +55,10 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
   public send(inputText: string): Promise<Partial<MergedResponse>> {
     throw new Error("Method not implemented.");
   }
-  public beforeSend(callback: () => ): void | Promise<void> {
+  public beforeSend(callback: () => any): void | Promise<void> {
     throw new Error("Method not implemented.");
   }
-  public afterSend(callback: () => ): void | Promise<void> {
+  public afterSend(callback: () => any): void | Promise<void> {
     throw new Error("Method not implemented.");
   }
 
