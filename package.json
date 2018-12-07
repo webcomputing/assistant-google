@@ -48,7 +48,10 @@
     "tslint": "^5.4.0",
     "tslint-config-airbnb": "^5.9.2",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "~2.9.2"
+    "typescript": "~2.9.2",
+    "grpc": "~1.16.1",
+    "google-auth-library": "~2.0.1",
+    "google-protobuf": "~3.6.1"
   },
   "main": "./lib/assistant-google.js",
   "typings": "./dts/assistant-google.d.ts"

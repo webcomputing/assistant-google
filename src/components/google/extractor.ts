@@ -7,13 +7,12 @@ import {
   injectionNames,
   intent as Intent,
   Logger,
-  RequestContext,
   RequestExtractor,
 } from "assistant-source";
 import { inject, injectable, optional } from "inversify";
 import { Component } from "inversify-components";
 import { COMPONENT_NAME } from "./private-interfaces";
-import { Extraction, GoogleDevice, GoogleRequestContext } from "./public-interfaces";
+import { Extraction, GoogleRequestContext } from "./public-interfaces";
 
 @injectable()
 export class Extractor extends ApiAiExtractor implements RequestExtractor {
