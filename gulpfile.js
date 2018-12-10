@@ -5,15 +5,15 @@ const gulp = require("gulp"),
   clean = require("gulp-clean"),
   shell = require("gulp-shell"),
   watch = require("gulp-watch"),
-  sourcemaps = require("gulp-sourcemaps"),
-  execSync = require("child_process").execSync,
-  fs = require("fs");
-
+  sourcemaps = require("gulp-sourcemaps");
 /** Folder containing the sources */
 const SOURCES = ["src/**/*.ts"];
 
 /** Folder containing the specs */
 const SPECS = ["spec/**/*.ts"];
+
+/** Folder containing the assistant api */
+const ASSISTANT_API = ["src/components/google/assistant-interface/**/*.js"];
 
 /**
  * For your specs-watcher: This function is called every time a file changed which doesn't end with '.spec.ts'.
@@ -39,7 +39,7 @@ function runJasmine(file) {
 /** Default task: Cleans build files, executes linter, builds project. Is executed automatically if using "gulp". Does not emit sourcefiles, good for deployment. */
 gulp.task("default", ["lint", "build-sources", "build-dts", "test-coverage"]);
 
-gulp.task("build", ["build-sources", "build-dts"]);
+gulp.task("build", ["build-sources", "build-dts", "copy-api"]);
 
 /** Cleans project: Removes build folders ("js", "lib", "dts", ".nyc_output") */
 gulp.task("clean", function() {
@@ -106,6 +106,10 @@ gulp.task("build-sources", ["clean"], function() {
       this.once("finish", () => process.exit(1));
     })
     .js.pipe(gulp.dest(file => file.base));
+});
+
+gulp.task("copy-api", ["clean"], function() {
+  return gulp.src(ASSISTANT_API).pipe(gulp.dest("./lib/components/google/assistant-interface"));
 });
 
 /**
