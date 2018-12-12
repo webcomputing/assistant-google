@@ -78,6 +78,11 @@ export interface GoogleSpecificTypes extends ApiAiSpecificTypes {
    * see: https://developers.google.com/actions/assistant/responses#table_card
    */
   googleTable: GoogleInterface.TableCard;
+
+  /**
+   * If true OAuth token should get removed
+   */
+  shouldRevokeGoogleAccountLinking: boolean;
 }
 
 /**
@@ -97,7 +102,7 @@ export interface GoogleSpecificHandable<CustomTypes extends GoogleSpecificTypes>
   setGoogleTable(table: CustomTypes["googleTable"] | Promise<CustomTypes["googleTable"]>): this;
 
   /**
-   * Note: At the moment this will return a HTTP status code of 401. This will result in a error message, that your action is not responding at the moment.   
+   * Note: At the moment this will return a HTTP status code of 401. This will result in a error message, that your action is not responding at the moment.
    * At the moment it is not possible to set a custom message here.
    */
   revokeGoogleAccountLinking(): this;

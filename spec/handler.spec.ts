@@ -408,7 +408,7 @@ describe("Handler", function() {
     });
   });
 
-  describe("with statsu code != 200", function() {
+  describe("with status code != 200", function() {
     describe("revoking OAuth Token", function() {
       beforeEach(async function(this: CurrentThisContext) {
         this.googleSpecHelper = new GoogleSpecHelper(this.specHelper);
@@ -418,6 +418,7 @@ describe("Handler", function() {
 
       it("set http status code = 401", async function(this: CurrentThisContext) {
         expect(this.responseResults.httpStatusCode).toBe(401);
+        expect(this.responseResults.shouldRevokeGoogleAccountLinking).toBe(true);
       });
     });
   });

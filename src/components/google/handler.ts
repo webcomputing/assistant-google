@@ -79,6 +79,7 @@ export class GoogleHandler<MergedAnswerTypes extends GoogleSpecificTypes> extend
 
   public revokeGoogleAccountLinking(): this {
     this.setHttpStatusCode(401);
+    this.promises.shouldRevokeGoogleAccountLinking = { resolver: true };
     return this;
   }
 
