@@ -119,7 +119,6 @@ export interface GoogleAssistRequest extends E2ETesting.BasicAssistRequest {
  */
 export interface GoogleAssistResponse extends E2ETesting.BasicAssistResponse {
   text: string;
-  dialog_state_out: AssistantInterface.DialogStateOut;
 }
 
 /**
