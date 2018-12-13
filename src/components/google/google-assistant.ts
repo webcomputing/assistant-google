@@ -6,7 +6,7 @@ import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
 import * as path from "path";
 import { ASSISTANT_SERVICE, Configuration } from "./private-interfaces";
-import { AssistantInterface, GoogleAssistResponse } from "./public-interfaces";
+import { AssistantInterface, GoogleAssistResponse, GoogleOAuth2Credentials } from "./public-interfaces";
 
 @injectable()
 export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implements VirtualAssistant<MergedResponse> {
@@ -56,29 +56,33 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
     this.assistConfig.setTextQuery(inputText);
     request.setConfig(this.assistConfig);
 
+    request.clearAudioIn();
+
     // Open duplex rpc stream
     const conversation = this.grpcClient.assist();
 
     return new Promise((resolve, reject) => {
-      const response: GoogleAssistResponse = { text: "" };
-
-      // Bind event listener
-      conversation.on("data", (data: AssistantInterface.AssistResponse) => {
-        if (data.hasDialogStateOut) {
-          const dialogState = data.getDialogStateOut() as AssistantInterface.DialogStateOut;
-          response.text = dialogState.getSupplementalDisplayText();
+      const response = {} as any;
+      conversation.on("data", data => {
+        console.log("Data: ", JSON.stringify(data));
+        if (data.event_type === "END_OF_UTTERANCE") {
+        }
+        if (data.audio_out) {
+          response.audio = data.audio_out.audio_data;
+        }
+        if (data.device_action) {
+          response.deviceAction = JSON.parse(data.device_action.device_request_json);
+        } else if (data.dialog_state_out !== null && data.dialog_state_out.supplemental_display_text) {
+          response.text = data.dialog_state_out.supplemental_display_text;
         }
       });
-      conversation.on("end", data => {
+      conversation.on("end", error => {
         // Response ended, resolve with the whole response.
         resolve(response);
       });
       conversation.on("error", error => {
-        // Error => reject
         reject(error);
       });
-
-      // Write message to request stream
       conversation.write(request);
       conversation.end();
     });
@@ -93,12 +97,14 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
    * AssistantJS and the Google Assistant Service API
    */
   private createGRPCClient(): AssistantInterface.EmbeddedAssistantClient {
-    // Load OAuth2 credentials
     const auth = new UserRefreshClient();
-    const credentials = path.resolve(this.configuration.credentials);
+    const credentialsPath = path.resolve(this.configuration.credentials);
 
-    if (fs.existsSync(credentials)) {
-      auth.fromJSON(require(credentials));
+    // Load OAuth2 credentials
+    if (fs.existsSync(credentialsPath)) {
+      const credentials: Partial<GoogleOAuth2Credentials> = require(credentialsPath);
+      credentials.type = "authorized_user";
+      auth.fromJSON(credentials);
     } else {
       throw new Error("No Google OAuth2 credentials found!. Abort...");
     }

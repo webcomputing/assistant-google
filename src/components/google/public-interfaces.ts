@@ -125,5 +125,22 @@ export interface GoogleAssistResponse extends BasicAssistResponse {
   text: string;
 }
 
+/**
+ * Represents Googles OAuth2 Credentials
+ */
+export interface GoogleOAuth2Credentials {
+  /** The client ID for your application. You can find this value in the API Console. */
+  client_id: string;
+  /** The client secret obtained from the API Console. */
+  client_secret: string;
+  /**
+   * A token that you can use to obtain a new access token.
+   * Refresh tokens are valid until the user revokes access. Note that refresh tokens are always returned for devices.
+   */
+  refresh_token: string;
+  /** Authorization type */
+  type: "authorized_user" | "service_account";
+}
+
 export { GoogleInterface };
 export { AssistantInterface };
