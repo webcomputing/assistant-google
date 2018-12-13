@@ -54,7 +54,7 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
    * Sends a request to Googles Assistant API
    * @param inputText Text to call with
    */
-  public async send(inputText: string): Promise<Partial<MergedResponse>> {
+  public async send(inputText: string): Promise<any> {
     // Set Request
     const request = new AssistantInterface.AssistRequest();
     this.assistConfig.setTextQuery(inputText);

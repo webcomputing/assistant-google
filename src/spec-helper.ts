@@ -1,8 +1,19 @@
-import { AccountLinkingStatus, HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper, VirtualDevices } from "assistant-source";
+import {
+  AccountLinkingStatus,
+  HandlerProxyFactory,
+  injectionNames,
+  intent as Intent,
+  PlatformSpecHelper,
+  RequestContext,
+  SpecHelper,
+  VirtualAssistant,
+  VirtualDevices,
+} from "assistant-source";
+import { GoogleAssistant } from "./components/google/google-assistant";
 import { GoogleHandler } from "./components/google/handler";
-import { Extraction, GoogleDevice, GoogleSpecificHandable, GoogleSpecificTypes } from "./components/google/public-interfaces";
+import { Extraction, GoogleAssistResponse, GoogleDevice, GoogleSpecificHandable, GoogleSpecificTypes } from "./components/google/public-interfaces";
 
-export class GoogleSpecHelper implements PlatformSpecHelper<GoogleSpecificTypes, GoogleSpecificHandable<GoogleSpecificTypes>> {
+export class GoogleSpecHelper implements PlatformSpecHelper<GoogleSpecificTypes, GoogleSpecificHandable<GoogleSpecificTypes>, GoogleAssistResponse> {
   public devices: VirtualDevices;
 
   constructor(public specSetup: SpecHelper) {
@@ -72,5 +83,15 @@ export class GoogleSpecHelper implements PlatformSpecHelper<GoogleSpecificTypes,
     const proxiedHandler = proxyFactory.createHandlerProxy(currentHandler);
 
     return proxiedHandler;
+  }
+
+  public callAssistant(utterance: string): Promise<GoogleAssistResponse> {
+    const googleAssistant: GoogleAssistant<GoogleAssistResponse> = this.specSetup.assistantJs.container.inversifyInstance.get("google:virtual-assistant");
+    return googleAssistant.send(utterance);
+  }
+
+  public async prepareAssistant(): Promise<void> {
+    const googleAssistant: GoogleAssistant<GoogleAssistResponse> = this.specSetup.assistantJs.container.inversifyInstance.get("google:virtual-assistant");
+    return googleAssistant.setup();
   }
 }
