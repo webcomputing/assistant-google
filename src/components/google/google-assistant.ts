@@ -62,27 +62,27 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
     const conversation = this.grpcClient.assist();
 
     return new Promise((resolve, reject) => {
-      const response = {} as any;
-      conversation.on("data", data => {
-        console.log("Data: ", JSON.stringify(data));
-        if (data.event_type === "END_OF_UTTERANCE") {
-        }
-        if (data.audio_out) {
-          response.audio = data.audio_out.audio_data;
-        }
-        if (data.device_action) {
-          response.deviceAction = JSON.parse(data.device_action.device_request_json);
-        } else if (data.dialog_state_out !== null && data.dialog_state_out.supplemental_display_text) {
-          response.text = data.dialog_state_out.supplemental_display_text;
+      const response: GoogleAssistResponse = { text: "" };
+
+      conversation.on("data", (data: AssistantInterface.AssistResponse) => {
+        if (data.hasDialogStateOut) {
+          const dialogState = data.getDialogStateOut();
+          if (typeof dialogState !== "undefined") {
+            response.text = dialogState.getSupplementalDisplayText();
+          }
         }
       });
-      conversation.on("end", error => {
+
+      conversation.on("end", data => {
         // Response ended, resolve with the whole response.
         resolve(response);
       });
       conversation.on("error", error => {
+        // Error => reject
         reject(error);
       });
+
+      // Write message to request stream
       conversation.write(request);
       conversation.end();
     });
