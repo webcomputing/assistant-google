@@ -50,6 +50,10 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
     this.grpcClient = this.createGRPCClient();
   }
 
+  /**
+   * Sends a request to Googles Assistant API
+   * @param inputText Text to call with
+   */
   public async send(inputText: string): Promise<Partial<MergedResponse>> {
     // Set Request
     const request = new AssistantInterface.AssistRequest();
@@ -64,6 +68,7 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
     return new Promise((resolve, reject) => {
       const response: GoogleAssistResponse = { text: "" };
 
+      // Bind data listener
       conversation.on("data", (data: AssistantInterface.AssistResponse) => {
         if (data.hasDialogStateOut) {
           const dialogState = data.getDialogStateOut();
@@ -73,13 +78,16 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
         }
       });
 
-      conversation.on("end", data => {
-        // Response ended, resolve with the whole response.
-        resolve(response);
-      });
+      // Bind error listener
       conversation.on("error", error => {
         // Error => reject
         reject(error);
+      });
+
+      // Bind end listener
+      conversation.on("end", () => {
+        // Response ended, resolve with the whole response.
+        resolve(response);
       });
 
       // Write message to request stream
