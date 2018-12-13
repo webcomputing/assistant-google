@@ -5,7 +5,8 @@ import {
   DialogflowRequestContext,
   ExtractionInterface as ApiAiExtraction,
 } from "assistant-apiai";
-import { OptionalExtractions } from "assistant-source";
+import { BasicAssistRequest, BasicAssistResponse, OptionalExtractions } from "assistant-source";
+import * as AssistantInterface from "./assistant-interface";
 import * as GoogleInterface from "./conversation-interface";
 import { Configuration } from "./private-interfaces";
 
@@ -97,7 +98,7 @@ export interface GoogleSpecificHandable<CustomTypes extends GoogleSpecificTypes>
   setGoogleTable(table: CustomTypes["googleTable"] | Promise<CustomTypes["googleTable"]>): this;
 
   /**
-   * Note: At the moment this will return a HTTP status code of 401. This will result in a error message, that your action is not responding at the moment.   
+   * Note: At the moment this will return a HTTP status code of 401. This will result in a error message, that your action is not responding at the moment.
    * At the moment it is not possible to set a custom message here.
    */
   revokeGoogleAccountLinking(): this;
@@ -107,4 +108,22 @@ export interface GoogleRequestContext extends DialogflowRequestContext {
   body: DialogflowInterface.WebhookRequest<GoogleInterface.AppRequest>;
 }
 
+/**
+ * The top-level message sent by the client.
+ */
+export interface GoogleAssistRequest extends BasicAssistRequest {
+  /**
+   * The config message provides information to the recognizer that specifies how to process the request.
+   */
+  config: AssistantInterface.AssistConfig;
+}
+
+/**
+ * The top-level message received by the client. A series of one or more AssistResponse messages are streamed back to the client.
+ */
+export interface GoogleAssistResponse extends BasicAssistResponse {
+  text: string;
+}
+
 export { GoogleInterface };
+export { AssistantInterface };

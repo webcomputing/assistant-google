@@ -1,7 +1,12 @@
 export namespace Configuration {
   /** Configuration defaults -> all of these keys are optional for user */
   // tslint:disable-next-line:no-empty-interface
-  export interface Defaults {}
+  export interface Defaults {
+    /**
+     * Path to your Google Application Credentials
+     */
+    credentials: string;
+  }
 
   /** Required configuration options, no defaults are used here */
   // tslint:disable-next-line:no-empty-interface
@@ -13,3 +18,6 @@ export namespace Configuration {
 
 /** Name of component (to make no typos) */
 export const COMPONENT_NAME = "google";
+
+/** Name of the Google Assistant API Service  */
+export const ASSISTANT_SERVICE = "embeddedassistant.googleapis.com";
