@@ -122,7 +122,7 @@ export interface GoogleAssistRequest extends BasicAssistRequest {
  * The top-level message received by the client. A series of one or more AssistResponse messages are streamed back to the client.
  */
 export interface GoogleAssistResponse extends BasicAssistResponse {
-  text: string;
+  display_html?: string;
 }
 
 /**

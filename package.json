@@ -51,7 +51,8 @@
     "typescript": "~2.9.2",
     "grpc": "~1.16.1",
     "google-auth-library": "~2.0.1",
-    "google-protobuf": "~3.6.1"
+    "google-protobuf": "~3.6.1",
+    "js-base64": "^2.4.9"
   },
   "main": "./lib/assistant-google.js",
   "typings": "./dts/assistant-google.d.ts"

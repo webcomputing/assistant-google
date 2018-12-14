@@ -6,7 +6,6 @@ import {
   PlatformSpecHelper,
   RequestContext,
   SpecHelper,
-  VirtualAssistant,
   VirtualDevices,
 } from "assistant-source";
 import { GoogleAssistant } from "./components/google/google-assistant";

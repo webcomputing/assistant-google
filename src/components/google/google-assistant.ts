@@ -4,6 +4,7 @@ import { UserRefreshClient } from "google-auth-library";
 import * as grpc from "grpc";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
+import { Base64 } from "js-base64";
 import * as path from "path";
 import { ASSISTANT_SERVICE, Configuration } from "./private-interfaces";
 import { AssistantInterface, GoogleAssistResponse, GoogleOAuth2Credentials } from "./public-interfaces";
@@ -45,6 +46,12 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
       config.getDeviceConfig()!.setDeviceModelId("default");
     }
 
+    // Set the screen response
+    config.setScreenOutConfig(new AssistantInterface.ScreenOutConfig());
+    if (typeof config.getScreenOutConfig() !== "undefined") {
+      config.getScreenOutConfig()!.setScreenMode(AssistantInterface.ScreenOutConfig.ScreenMode.PLAYING);
+    }
+
     // Assign config and client
     this.assistConfig = config;
     this.grpcClient = this.createGRPCClient();
@@ -72,8 +79,18 @@ export class GoogleAssistant<MergedResponse extends GoogleAssistResponse> implem
       conversation.on("data", (data: AssistantInterface.AssistResponse) => {
         if (data.hasDialogStateOut) {
           const dialogState = data.getDialogStateOut();
+          const screenOut = data.getScreenOut();
+
+          // Get Text from response
           if (typeof dialogState !== "undefined") {
             response.text = dialogState.getSupplementalDisplayText();
+          }
+
+          // Get Display output from response
+          if (typeof screenOut !== "undefined") {
+            if (screenOut.getFormat() === AssistantInterface.ScreenOut.Format.HTML) {
+              response.display_html = Base64.decode(screenOut.getData_asB64());
+            }
           }
         }
       });
